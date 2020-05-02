@@ -7,6 +7,7 @@ RUN go get -d -v ./...
 RUN go install -v ./...
 
 VOLUME /data
-WORKDIR /
+ENV CardsDirectory /data
+EXPOSE 3200/tcp
 
-CMD ["silicondawn", "serve"]
+CMD ["silicondawn", "serve", "--release"]
