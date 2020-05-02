@@ -68,6 +68,7 @@ acquiring this package, opening it, and laying out our cards`,
 }
 
 func getMain(cardsDirectory string, cardsURL string) error {
+	log.Print("Creating card directory")
 	err := os.MkdirAll(cardsDirectory, 0700)
 	if err != nil {
 		return fmt.Errorf("Making Directory: %w", err)
