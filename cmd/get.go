@@ -32,11 +32,11 @@ package cmd
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"onlyhavecans.works/amy/silicondawn/lib"
 	"os"
 	"path/filepath"
 	"strings"
@@ -53,26 +53,40 @@ var getCmd = &cobra.Command{
 	Long: `We all have our own methods for preparing our space and practice.
 Before we can draw card for any one we must first acquire it.
 
-There is no local show which sells it, so instead we take its digital format.
+There is no local shop which sells it, so instead we take its digital format.
 Luckily for us it is offered for free by it's creator. This command is for
 acquiring this package, opening it, and laying out our cards`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cardsURL := viper.GetString("CardsURL")
-		cardsDirectory := viper.GetString("CardsDirectory")
+		u := viper.GetString("CardsURL")
+		d := viper.GetString("CardsDirectory")
 
-		err := os.MkdirAll(cardsDirectory, 0700)
-		lib.FatalIfErr("Making directory", err)
-
-		log.Print("Getting Zip File")
-		z, err := retrieveZip(cardsURL)
-		lib.FatalIfErr("Download File Failed", err)
-
-		log.Print("Unzipping files")
-		err = unzipFiles(z, cardsDirectory)
-		lib.FatalIfErr("Unzip failed", err)
-
-		log.Print("Finished!")
+		err := getMain(d, u)
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
 	},
+}
+
+func getMain(cardsDirectory string, cardsURL string) error {
+	err := os.MkdirAll(cardsDirectory, 0700)
+	if err != nil {
+		return fmt.Errorf("Making Directory: %w", err)
+	}
+
+	log.Print("Getting Zip File")
+	z, err := retrieveZip(cardsURL)
+	if err != nil {
+		return fmt.Errorf("Downloading file: %w", err)
+	}
+
+	log.Print("Unzipping files")
+	err = unzipFiles(z, cardsDirectory)
+	if err != nil {
+		return fmt.Errorf("Unzipping file: %w", err)
+	}
+
+	log.Print("Finished!")
+	return nil
 }
 
 func unzipFiles(zipData []byte, destinationDir string) error {
