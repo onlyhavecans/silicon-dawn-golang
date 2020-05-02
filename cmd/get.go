@@ -62,11 +62,15 @@ acquiring this package, opening it, and laying out our cards`,
 		err := os.MkdirAll(cardsDirectory, 0700)
 		fatalIfErr("Making directory", err)
 
+		log.Print("Getting Zip File")
 		z, err := retrieveZip(cardsURL)
 		fatalIfErr("Download File Failed", err)
 
+		log.Print("Unzipping files")
 		err = unzipFiles(z, cardsDirectory)
 		fatalIfErr("Unzip failed", err)
+
+		log.Print("Finished!")
 	},
 }
 
