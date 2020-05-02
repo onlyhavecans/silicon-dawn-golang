@@ -94,7 +94,7 @@ func unzipFiles(zipData []byte, destinationDir string) error {
 			break
 		}
 		if err != nil {
-			return nil
+			return err
 		}
 
 		if skipFile(f.Name()) {
