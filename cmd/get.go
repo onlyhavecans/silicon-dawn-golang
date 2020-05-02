@@ -31,36 +31,122 @@ POSSIBILITY OF SUCH DAMAGE.
 package cmd
 
 import (
-	"fmt"
+	"bytes"
+	"io"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 
+	"github.com/mholt/archiver/v3"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // getCmd represents the get command
 var getCmd = &cobra.Command{
 	Use:   "get",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Download and prepare the silicon-dawn",
+	Long: `We all have our own methods for preparing our space and practice.
+Before we can draw card for any one we must first acquire it.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+There is no local show which sells it, so instead we take its digital format.
+Luckily for us it is offered for free by it's creator. This command is for
+acquiring this package, opening it, and laying out our cards`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("get called")
+		cardsURL := viper.GetString("CardsURL")
+		cardsDirectory := viper.GetString("CardsDirectory")
+
+		err := os.MkdirAll(cardsDirectory, 0700)
+		fatalIfErr("Making directory", err)
+
+		z, err := retrieveZip(cardsURL)
+		fatalIfErr("Download File Failed", err)
+
+		err = unzipFiles(z, cardsDirectory)
+		fatalIfErr("Unzip failed", err)
 	},
+}
+
+func unzipFiles(zipData []byte, destinationDir string) error {
+	// Zip Files need to know the size of the file
+	contentLen := len(zipData)
+	r := bytes.NewReader(zipData)
+	z := archiver.NewZip()
+
+	err := z.Open(r, int64(contentLen))
+	if err != nil {
+		return err
+	}
+	defer z.Close()
+
+	// iterate each file in the archive until EOF
+	for {
+		f, err := z.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil
+		}
+
+		if skipFile(f.Name()) {
+			log.Print("Skipping file: ", f.Name())
+			f.Close()
+			continue
+		}
+
+		fileName := filepath.Join(destinationDir, f.Name())
+		body, err := ioutil.ReadAll(f)
+		if err != nil {
+			log.Print("Failure to read compressed file ", err)
+			f.Close()
+			continue
+		}
+
+		err = ioutil.WriteFile(fileName, body, 0644)
+		if err != nil {
+			return err
+		}
+
+		if err := f.Close(); err != nil {
+			log.Print("Fileclose failed", err)
+		}
+	}
+	return nil
+}
+
+func retrieveZip(url string) ([]byte, error) {
+	// Basic HTTP GET request
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return ioutil.ReadAll(resp.Body)
+}
+
+func fatalIfErr(message string, err error) {
+	if err != nil {
+		log.Fatal(message, err)
+	}
+}
+
+func skipFile(name string) bool {
+	switch {
+	case strings.HasPrefix(name, "._"):
+		return true
+	case strings.HasPrefix(name, "__MACOSX"):
+		return true
+	case strings.Contains(name, "sand-home"):
+		return true
+	default:
+		return false
+	}
 }
 
 func init() {
 	rootCmd.AddCommand(getCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// getCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// getCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
