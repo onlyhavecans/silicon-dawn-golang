@@ -31,6 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package cmd
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -57,20 +58,21 @@ the tarot may give you sad messages anyways though. I choose not to stop this.`,
 		router.GET("/", index)
 		router.GET("/robots.txt", robots)
 		router.Static("/cards", cardsDirectory)
-		router.Run(addr) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+		err := router.Run(addr) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+		log.Fatal(err)
 	},
 }
 
-func index(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.gohtml", gin.H{
+func index(ctx *gin.Context) {
+	ctx.HTML(http.StatusOK, "index.gohtml", gin.H{
 		"dir":  "cards",
 		"name": "cups-2.jpg",
 		"text": "cups-2-text.png",
 	})
 }
 
-func robots(c *gin.Context) {
-	c.String(http.StatusOK, "User-agent: *\nDisallow: /\n")
+func robots(ctx *gin.Context) {
+	ctx.String(http.StatusOK, "User-agent: *\nDisallow: /\n")
 }
 
 func init() {
