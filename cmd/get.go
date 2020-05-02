@@ -112,7 +112,7 @@ func unzipFiles(zipData []byte, destinationDir string) error {
 		}
 
 		if err := f.Close(); err != nil {
-			log.Print("Fileclose failed", err)
+			log.Print("close failed", err)
 		}
 	}
 	return nil
