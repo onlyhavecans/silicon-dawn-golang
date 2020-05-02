@@ -31,8 +31,10 @@ POSSIBILITY OF SUCH DAMAGE.
 package cmd
 
 import (
-	"fmt"
+	"net/http"
+	"strconv"
 
+	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"onlyhavecans.works/amy/silicondawn/lib"
@@ -41,22 +43,40 @@ import (
 // serveCmd represents the serve command
 var serveCmd = &cobra.Command{
 	Use:   "serve",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Share the tarot of the silicon-dawn",
+	Long: `Before you run this command you will need to run the get command
+if you don't then it will be sad.
+the tarot may give you sad messages anyways though. I choose not to stop this.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("serve called")
+		port := viper.GetInt("port")
+		addr := "0.0.0.0:" + strconv.Itoa(port)
+		cardsDirectory := viper.GetString("CardsDirectory")
+
+		router := gin.Default()
+		router.LoadHTMLGlob("templates/*")
+		router.GET("/", index)
+		router.GET("/robots.txt", robots)
+		router.Static("/cards", cardsDirectory)
+		router.Run(addr) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 	},
+}
+
+func index(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.gohtml", gin.H{
+		"dir":  "cards",
+		"name": "cups-2.jpg",
+		"text": "cups-2-text.png",
+	})
+}
+
+func robots(c *gin.Context) {
+	c.String(http.StatusOK, "User-agent: *\nDisallow: /\n")
 }
 
 func init() {
 	rootCmd.AddCommand(serveCmd)
 
-	serveCmd.Flags().Intp("port", "p", 3200, "Port to run on")
+	serveCmd.Flags().IntP("port", "p", 3200, "Port to run on")
 	err := viper.BindPFlag("Port", serveCmd.Flags().Lookup("port"))
 	lib.FatalIfErr("", err)
 
