@@ -93,7 +93,6 @@ func unzipFiles(zipData []byte, destinationDir string) error {
 		}
 
 		if skipFile(f.Name()) {
-			log.Print("Skipping file: ", f.Name())
 			f.Close()
 			continue
 		}
@@ -101,7 +100,7 @@ func unzipFiles(zipData []byte, destinationDir string) error {
 		fileName := filepath.Join(destinationDir, f.Name())
 		body, err := ioutil.ReadAll(f)
 		if err != nil {
-			log.Print("Failure to read compressed file ", err)
+			log.Print("Failure to read compressed file ", f.Name(), err)
 			f.Close()
 			continue
 		}
@@ -140,7 +139,7 @@ func skipFile(name string) bool {
 		return true
 	case strings.HasPrefix(name, "__MACOSX"):
 		return true
-	case strings.Contains(name, "sand-home"):
+	case strings.HasPrefix(name, "sand-home"):
 		return true
 	default:
 		return false
