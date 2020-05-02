@@ -59,7 +59,7 @@ the tarot may give you sad messages anyways though. I choose not to stop this.`,
 			gin.SetMode(gin.ReleaseMode)
 		}
 
-		log.Print("Building a deck")
+		log.Print("Building a deck out of %s", cardsDirectory)
 		var err error
 		deck, err = lib.NewCardDeck(cardsDirectory)
 		if err != nil {
