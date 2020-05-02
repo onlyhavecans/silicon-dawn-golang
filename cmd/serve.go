@@ -41,6 +41,8 @@ import (
 	"onlyhavecans.works/amy/silicondawn/lib"
 )
 
+var deck lib.CardDeck
+
 // serveCmd represents the serve command
 var serveCmd = &cobra.Command{
 	Use:   "serve",
@@ -53,21 +55,37 @@ the tarot may give you sad messages anyways though. I choose not to stop this.`,
 		addr := "0.0.0.0:" + strconv.Itoa(port)
 		cardsDirectory := viper.GetString("CardsDirectory")
 
+		if viper.GetBool("release") {
+			gin.SetMode(gin.ReleaseMode)
+		}
+
+		log.Print("Building a deck")
+		var err error
+		deck, err = lib.NewCardDeck(cardsDirectory)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("We have %d cards now", deck.Count())
+
 		router := gin.Default()
 		router.LoadHTMLGlob("templates/*")
 		router.GET("/", index)
 		router.GET("/robots.txt", robots)
 		router.Static("/cards", cardsDirectory)
-		err := router.Run(addr) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+		err = router.Run(addr) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 		log.Fatal(err)
 	},
 }
 
 func index(ctx *gin.Context) {
+	c, err := deck.Draw()
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+	}
 	ctx.HTML(http.StatusOK, "index.gohtml", gin.H{
 		"dir":  "cards",
-		"name": "cups-2.jpg",
-		"text": "cups-2-text.png",
+		"name": c.Front(),
+		"text": c.Back(),
 	})
 }
 
@@ -82,5 +100,10 @@ func init() {
 	err := viper.BindPFlag("Port", serveCmd.Flags().Lookup("port"))
 	lib.FatalIfErr("", err)
 
+	serveCmd.Flags().BoolP("release", "r", false, "Go-Gin release mode")
+	err = viper.BindPFlag("Release", serveCmd.Flags().Lookup("release"))
+	lib.FatalIfErr("", err)
+
 	viper.SetDefault("Port", 3200)
+	viper.SetDefault("Release", false)
 }
