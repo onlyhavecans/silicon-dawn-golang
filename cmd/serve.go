@@ -34,6 +34,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"onlyhavecans.works/amy/silicondawn/lib"
 )
 
 // serveCmd represents the serve command
@@ -54,13 +56,9 @@ to quickly create a Cobra application.`,
 func init() {
 	rootCmd.AddCommand(serveCmd)
 
-	// Here you will define your flags and configuration settings.
+	serveCmd.Flags().Intp("port", "p", 3200, "Port to run on")
+	err := viper.BindPFlag("Port", serveCmd.Flags().Lookup("port"))
+	lib.FatalIfErr("", err)
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// serveCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// serveCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	viper.SetDefault("Port", 3200)
 }

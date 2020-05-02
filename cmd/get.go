@@ -36,6 +36,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"onlyhavecans.works/amy/silicondawn/lib"
 	"os"
 	"path/filepath"
 	"strings"
@@ -60,15 +61,15 @@ acquiring this package, opening it, and laying out our cards`,
 		cardsDirectory := viper.GetString("CardsDirectory")
 
 		err := os.MkdirAll(cardsDirectory, 0700)
-		fatalIfErr("Making directory", err)
+		lib.FatalIfErr("Making directory", err)
 
 		log.Print("Getting Zip File")
 		z, err := retrieveZip(cardsURL)
-		fatalIfErr("Download File Failed", err)
+		lib.FatalIfErr("Download File Failed", err)
 
 		log.Print("Unzipping files")
 		err = unzipFiles(z, cardsDirectory)
-		fatalIfErr("Unzip failed", err)
+		lib.FatalIfErr("Unzip failed", err)
 
 		log.Print("Finished!")
 	},
@@ -129,12 +130,6 @@ func retrieveZip(url string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 	return ioutil.ReadAll(resp.Body)
-}
-
-func fatalIfErr(message string, err error) {
-	if err != nil {
-		log.Fatal(message, err)
-	}
 }
 
 func skipFile(name string) bool {
