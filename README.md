@@ -11,6 +11,9 @@ I wanted to take it to the NEXT LEVEL and rewrite it in golang and stuff it in a
 
 ### Docker
 
+I publish the docker container at `skwrl/silicon-dawn`.
+It is fully self-contained and uses port 3200 internally.
+
 1. Install docker however you choose
 1. copy the `docker-compose.yml` from this repo
 1. Change the port settings as desired
