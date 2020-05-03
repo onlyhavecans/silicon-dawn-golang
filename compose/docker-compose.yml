@@ -2,7 +2,6 @@ version: "3"
 
 services:
   silicon-dawn:
-    image: skwrl/silicon-dawn:latest
-    restart: always
+    image: .
     ports:
       - "127.0.0.1:3200:8080"
