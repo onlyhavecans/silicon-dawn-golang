@@ -2,10 +2,9 @@
 
 I made this so I can pull random cards on my phone and review the text.
 
-I originally designed this for use in [Pythonista](http://omz-software.com/pythonista/) but I rewrote it in rust to be a web app.
-Then I got very tired of maintaining and compiling rust for the app.
+I originally designed this for use in [Pythonista](http://omz-software.com/pythonista/)
+Then I rewrote it in rust to be a web app. Then I got very tired of compiling rust.
 I wanted to take it to the NEXT LEVEL and rewrite it in golang and stuff it in a docker container.
-
 
 ## Instructions
 
@@ -14,17 +13,15 @@ I wanted to take it to the NEXT LEVEL and rewrite it in golang and stuff it in a
 I publish the docker container at `skwrl/silicon-dawn`.
 It is fully self-contained and uses port 3200 internally.
 
-1. Install docker however you choose
-1. copy the `docker-compose.yml` from this repo
-1. Change the port settings as desired
-1. `docker-compose up`
+You can spin up a copy however you choose to do a docker or use my compose files in `/compose`
 
-### Bare Go Binary
+### Go Binary
 
 1. Install golang
 1. Check out this repository wherever you choose
-1. `go run . get` to hydrate the cards data directory
-1. `go run . serve` to start the webserver
+1. `go build -o bin/silicon-dawn`
+1. `./bin/silicon-dawn get` to hydrate the cards data directory
+1. `./bin/silicon-dawn serve` to start the webserver
 1. Browse to http://localhost:3200 to enjoy your pick
 1. Refresh the page for a fresh pick
 
