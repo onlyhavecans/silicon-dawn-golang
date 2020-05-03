@@ -13,7 +13,7 @@ FROM scratch
 COPY --from=builder /go/bin/silicondawn /
 COPY templates /templates
 
-RUN ["silicondawn", "get"]
+COPY data /data
 
 EXPOSE 3200/tcp
 ENTRYPOINT ["./silicondawn"]
