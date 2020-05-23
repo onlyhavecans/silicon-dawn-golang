@@ -6,7 +6,7 @@ all: update test docker-run
 update:
 	go get -u ./...
 	go mod tidy
-	go vendor
+	go mod vendor
 
 test:
 	go test ./...
