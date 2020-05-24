@@ -1,0 +1,13 @@
+GET http://localhost:3200
+
+###
+GET http://localhost:3200/robots.txt
+
+###
+GET http://localhost:3200/marbles
+
+###
+GET http://localhost:3200/cards/wands-2.jpg
+
+###
+GET http://localhost:3200/cards/what

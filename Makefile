@@ -1,5 +1,8 @@
 IMAGE=skwrl/silicon-dawn:latest
-BIN=./bin/silicon-dawn
+SRV_PKG=./cmd/silicon-dawn
+SRV_BIN=./bin/silicon-dawn
+DL_PKG=./cmd/download
+DL_BIN=./bin/download
 
 all: update test docker-run
 
@@ -11,8 +14,8 @@ update:
 test:
 	go test ./...
 
-build:
-	docker build -f localcards.dockerfile -t $(IMAGE) .
+build: data
+	docker build -t $(IMAGE) .
 
 run: docker-build
 	 docker run -p 8080:3200 --name Make-Dawn $(IMAGE)
@@ -21,11 +24,12 @@ push:
 	docker push $(IMAGE)
 
 local-build: $(BIN)
-	go build -v -o $(BIN)
+	go build -v -o $(SRV_BIN) $(SRV_PKG)
+	go build -v -o $(DL_BIN) $(DL_PKG)
 
 local: local-build
-	$(BIN) serve
+	$(SRV_BIN)
 
 download: local-build
-	$(BIN) get
+	$(DL_BIN)
 

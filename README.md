@@ -19,7 +19,7 @@ You can spin up a copy however you choose to do a docker or use my compose files
 
 1. Install golang
 1. Check out this repository wherever you choose
-1. `go build -o bin/silicon-dawn`
+1. `go build -o bin/silicon-dawn cmd/silicon-dawn`
 1. `./bin/silicon-dawn get` to hydrate the cards data directory
 1. `./bin/silicon-dawn serve` to start the webserver
 1. Browse to http://localhost:3200 to enjoy your pick
