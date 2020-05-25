@@ -21,6 +21,7 @@ type Server struct {
 	httpServer *http.Server
 	config     *Config
 	templates  *template.Template
+	deck       *lib.CardDeck
 }
 
 const rootPath = "/"
@@ -28,24 +29,11 @@ const cardsPath = "/cards/"
 
 const indexTemplatePath = "templates/index.gohtml"
 
-var deck lib.CardDeck
-
-func initDeck(cardsDirectory string) error {
-	log.Printf("Building a deck out of %s", cardsDirectory)
-	var err error
-	deck, err = lib.NewCardDeck(cardsDirectory)
-	if err != nil {
-		return fmt.Errorf("building deck: %w", err)
-	}
-	log.Printf("We have %d cards now", deck.Count())
-	return nil
-}
-
 //NewServer returns an initialized Server
 func NewServer(config *Config) *Server {
-	err := initDeck(config.CardsDir)
+	deck, err := lib.NewCardDeck(config.CardsDir)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("deck build error: %v", err)
 	}
 
 	mux := http.NewServeMux()
@@ -66,6 +54,7 @@ func NewServer(config *Config) *Server {
 		httpServer: httpServer,
 		config:     config,
 		templates:  templates,
+		deck:       deck,
 	}
 
 	mux.HandleFunc("/robots.txt", server.robots)
@@ -77,23 +66,22 @@ func NewServer(config *Config) *Server {
 }
 
 func (s *Server) Start() error {
-	log.Printf("Listening on %v", s.config.Port)
-
+	log.Printf("Listening on %s with %d cards", s.config.Port, s.deck.Count())
 	return s.httpServer.ListenAndServe()
 }
 
-func (s Server) robots(w http.ResponseWriter, _ *http.Request) {
+func (s *Server) robots(w http.ResponseWriter, _ *http.Request) {
 	_, _ = w.Write([]byte("User-agent: *\nDisallow: /\n"))
 }
 
-func (s Server) root(w http.ResponseWriter, r *http.Request) {
+func (s *Server) root(w http.ResponseWriter, r *http.Request) {
 	// I prefer 404
 	if r.URL.Path != "/" {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	c, err := deck.Draw()
+	c, err := s.deck.Draw()
 	if err != nil {
 		err := fmt.Sprintf("could not draw card: %v", err)
 

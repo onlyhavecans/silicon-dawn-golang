@@ -38,14 +38,14 @@ type CardDeck struct {
 	cards     []Card
 }
 
-func NewCardDeck(dir string) (CardDeck, error) {
-	deck := CardDeck{Directory: dir}
+func NewCardDeck(dir string) (*CardDeck, error) {
+	deck := &CardDeck{Directory: dir}
 	rand.Seed(time.Now().UnixNano())
 	if err := deck.populate(); err != nil {
-		return CardDeck{}, err
+		return &CardDeck{}, err
 	}
 	if deck.empty() {
-		return CardDeck{}, fmt.Errorf("NoCardsAvailable")
+		return &CardDeck{}, fmt.Errorf("NoCardsAvailable")
 	}
 	return deck, nil
 }
