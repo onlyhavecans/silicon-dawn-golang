@@ -9,12 +9,11 @@ ARG CGO_ENABLED=0
 RUN go install ./cmd/silicon-dawn
 
 # Final Stage
-FROM scratch
+FROM scratch AS production
 EXPOSE 3200/tcp
 
 COPY --from=builder /go/bin/silicon-dawn /
 COPY templates /templates
-
 COPY data /data
 
-ENTRYPOINT ["./silicon-dawn"]
+CMD ["./silicon-dawn"]

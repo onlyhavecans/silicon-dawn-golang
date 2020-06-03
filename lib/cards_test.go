@@ -1,18 +1,25 @@
 package lib
 
-import "testing"
+import (
+	"errors"
+	"testing"
+)
 
-func TestNewCard(t *testing.T) {
+// todo: replace with table tests
+func TestNewCard_old(t *testing.T) {
 	// Happy Path
-	got, err := NewCard("what/a/good/card.jpg")
+	arg := "what/a/good/card.jpg"
+	got, err := NewCard(arg)
 	if err != nil {
-		t.Errorf("Good Card Expected: nil err, got: %w", err)
+		t.Errorf("NewCard(%q) err = %w", arg, err)
 	}
-	if f := got.Front(); f != "card.jpg" {
-		t.Errorf("Expected Front: card.jpg, Got: %s", f)
+	wantFront := "card.jpg"
+	if gotFront := got.Front(); gotFront != wantFront {
+		t.Errorf("NewCard(%q).Front() = %q; want %q", arg, gotFront, wantFront)
 	}
-	if b := got.Back(); b != "card-text.png" {
-		t.Errorf("Expected Back: card-text.png, Got: %s", b)
+	wantBack := "card-text.png"
+	if gotBack := got.Back(); gotBack != wantBack {
+		t.Errorf("Expected Back: card-text.png, Got: %s", gotBack)
 	}
 
 	got, err = NewCard("just-card.jpg")
@@ -27,11 +34,11 @@ func TestNewCard(t *testing.T) {
 	}
 }
 
-func TestNewCardDiscard(t *testing.T) {
-	// Bad Card
-	_, err := NewCard("bad-text.png")
-	if err == nil {
-		t.Error("Bad Card: Expected err Got: nil")
+func TestNewCard_discard(t *testing.T) {
+	arg := "invalid-card.png"
+	_, err := NewCard(arg)
+	if !errors.Is(err, BadCardError) {
+		t.Errorf("NewCard(%q) err = %v; want %v", arg, err, BadCardError)
 	}
 }
 
@@ -47,16 +54,16 @@ func TestNewCardDeck(t *testing.T) {
 }
 
 func TestCardDeck_Draw(t *testing.T) {
-	card, _ := NewCard("c.jpg")
+	want, _ := NewCard("c.jpg")
 	d := CardDeck{
-		Directory: "test_draw",
-		cards:     []Card{card},
+		Directory: "",
+		cards:     []Card{want},
 	}
 	got, err := d.Draw()
 	if err != nil {
-		t.Errorf("Expected: nil err, Got: %w", err)
+		t.Errorf("CardDeck.Draw() err = %v", err)
 	}
-	if got != card {
-		t.Errorf("Expected: Text Card, Got: %s", got)
+	if got != want {
+		t.Errorf("CardDeck.Draw() = %v; want %v", got, want)
 	}
 }

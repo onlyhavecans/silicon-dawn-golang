@@ -1,11 +1,16 @@
 package lib
 
 import (
-	"fmt"
+	"errors"
 	"math/rand"
 	"path/filepath"
 	"strings"
 	"time"
+)
+
+var (
+	BadCardError     = errors.New("bad card")
+	NoCardsAvailible = errors.New("no cards in deck")
 )
 
 type Card struct {
@@ -18,7 +23,7 @@ func NewCard(file string) (Card, error) {
 		cardName := baseName[0 : len(baseName)-4]
 		return Card{name: cardName}, nil
 	}
-	return Card{}, fmt.Errorf("Bad Card: Discarding %s", file)
+	return Card{}, BadCardError
 }
 
 func (c *Card) Front() string {
@@ -45,7 +50,7 @@ func NewCardDeck(dir string) (*CardDeck, error) {
 		return &CardDeck{}, err
 	}
 	if deck.empty() {
-		return &CardDeck{}, fmt.Errorf("NoCardsAvailable")
+		return &CardDeck{}, NoCardsAvailible
 	}
 	return deck, nil
 }
@@ -56,7 +61,7 @@ func (d *CardDeck) Count() int {
 
 func (d *CardDeck) Draw() (Card, error) {
 	if d.empty() {
-		return Card{}, fmt.Errorf("NoCardsAvailable")
+		return Card{}, NoCardsAvailible
 	}
 	drawNum := rand.Intn(len(d.cards))
 	c := d.cards[drawNum]

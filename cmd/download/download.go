@@ -20,19 +20,19 @@ func main() {
 	fmt.Printf("Creating card directory %s\n", cardsDirectory)
 	err := os.MkdirAll(cardsDirectory, 0700)
 	if err != nil {
-		fmt.Printf("Making Directory: %w\n", err)
+		fmt.Printf("os.MkDirAll err = %v\n", err)
 	}
 
 	fmt.Print("Getting Zip File\n")
 	z, err := retrieveZip(cardsURL)
 	if err != nil {
-		fmt.Printf("Downloading file: %w\n", err)
+		fmt.Printf("retrieveZip(%s) err = %v\n", cardsURL, err)
 	}
 
 	fmt.Print("Unzipping files\n")
 	err = unzipFiles(z, cardsDirectory)
 	if err != nil {
-		fmt.Printf("Unzipping file: %w\n", err)
+		fmt.Printf("unzipZiles(zipfile, %q) err = %v\n", cardsDirectory, err)
 	}
 
 	fmt.Print("Finished!\n")
