@@ -3,9 +3,14 @@ package silicondawn
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
+	"os"
 	"time"
+
+	"github.com/justinas/alice"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/hlog"
+	"github.com/rs/zerolog/log"
 
 	"onlyhavecans.works/amy/silicondawn/lib"
 )
@@ -14,6 +19,7 @@ import (
 type Config struct {
 	Port     string
 	CardsDir string
+	logLevel zerolog.Level
 }
 
 //Server is an instance of silicon-dawn server
@@ -22,6 +28,7 @@ type Server struct {
 	config     *Config
 	templates  *template.Template
 	deck       *lib.CardDeck
+	logger     zerolog.Logger
 }
 
 const rootPath = "/"
@@ -33,17 +40,32 @@ const indexTemplatePath = "templates/index.gohtml"
 func NewServer(config *Config) *Server {
 	deck, err := lib.NewCardDeck(config.CardsDir)
 	if err != nil {
-		log.Fatalf("deck build error: %v", err)
+		log.Fatal().Err(err).Msg("deck build failure")
 	}
 
 	mux := http.NewServeMux()
+
+	l := zerolog.New(os.Stdout)
+	l.Level(config.logLevel)
+
+	a := alice.New()
+	a = a.Append(hlog.NewHandler(l)).
+		Append(hlog.AccessHandler(func(r *http.Request, status, _ int, duration time.Duration) {
+			hlog.FromRequest(r).Info().
+				Str("method", r.Method).
+				Stringer("url", r.URL).
+				Int("status", status).
+				Dur("duration", duration).
+				Msg("")
+		}))
+	h := a.Then(mux)
 
 	httpServer := &http.Server{
 		Addr:         ":" + config.Port,
 		WriteTimeout: 3 * time.Second,
 		ReadTimeout:  3 * time.Second,
 		IdleTimeout:  1 * time.Minute,
-		Handler:      mux,
+		Handler:      h,
 	}
 
 	templates := template.Must(template.ParseFiles(
@@ -66,7 +88,10 @@ func NewServer(config *Config) *Server {
 }
 
 func (s *Server) Start() error {
-	log.Printf("Listening on %s with %d cards", s.config.Port, s.deck.Count())
+	log.Info().
+		Str("port", s.config.Port).
+		Int("card count", s.deck.Count()).
+		Msg("Listening")
 	return s.httpServer.ListenAndServe()
 }
 
@@ -77,16 +102,14 @@ func (s *Server) robots(w http.ResponseWriter, _ *http.Request) {
 func (s *Server) root(w http.ResponseWriter, r *http.Request) {
 	// I prefer 404
 	if r.URL.Path != "/" {
-		w.WriteHeader(http.StatusNotFound)
+		s.errorHandler(w, r, http.StatusNotFound)
 		return
 	}
 
 	c, err := s.deck.Draw()
 	if err != nil {
-		err := fmt.Sprintf("could not draw card: %v", err)
-
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(err))
+		log.Error().Err(err).Msg("could not draw card")
+		s.errorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
 
@@ -97,6 +120,13 @@ func (s *Server) root(w http.ResponseWriter, r *http.Request) {
 		"text": c.Back(),
 	})
 	if err != nil {
-		log.Printf("Error executing template rendering: %v", err)
+		log.Warn().Err(err).Msg("template render error")
+		s.errorHandler(w, r, http.StatusInternalServerError)
 	}
+}
+
+func (s *Server) errorHandler(w http.ResponseWriter, _ *http.Request, status int) {
+	w.WriteHeader(status)
+	msg := fmt.Sprintf("You drew a %d\nI doubt this was the card you are lookging for.", status)
+	_, _ = w.Write([]byte(msg))
 }
