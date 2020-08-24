@@ -6,8 +6,6 @@ import (
 	"log"
 	"net/http"
 	"time"
-
-	"onlyhavecans.works/amy/silicondawn/lib"
 )
 
 //Config stores the server's config
@@ -21,7 +19,7 @@ type Server struct {
 	httpServer *http.Server
 	config     *Config
 	templates  *template.Template
-	deck       *lib.CardDeck
+	deck       *CardDeck
 }
 
 const rootPath = "/"
@@ -31,7 +29,7 @@ const indexTemplatePath = "templates/index.gohtml"
 
 //NewServer returns an initialized Server
 func NewServer(config *Config) *Server {
-	deck, err := lib.NewCardDeck(config.CardsDir)
+	deck, err := NewCardDeck(config.CardsDir)
 	if err != nil {
 		log.Fatalf("deck build error: %v", err)
 	}
