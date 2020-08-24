@@ -15,7 +15,7 @@ github.com/golang/snappy
 # github.com/justinas/alice v1.2.0
 ## explicit
 github.com/justinas/alice
-# github.com/klauspost/compress v1.10.10
+# github.com/klauspost/compress v1.10.11
 ## explicit
 github.com/klauspost/compress/flate
 github.com/klauspost/compress/fse
@@ -46,7 +46,7 @@ github.com/rs/zerolog/hlog/internal/mutil
 github.com/rs/zerolog/internal/cbor
 github.com/rs/zerolog/internal/json
 github.com/rs/zerolog/log
-# github.com/ulikunitz/xz v0.5.7
+# github.com/ulikunitz/xz v0.5.8
 ## explicit
 github.com/ulikunitz/xz
 github.com/ulikunitz/xz/internal/hash

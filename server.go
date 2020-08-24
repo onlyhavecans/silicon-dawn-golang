@@ -11,8 +11,6 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
 	"github.com/rs/zerolog/log"
-
-	"onlyhavecans.works/amy/silicondawn/lib"
 )
 
 //Config stores the server's config
@@ -27,7 +25,7 @@ type Server struct {
 	httpServer *http.Server
 	config     *Config
 	templates  *template.Template
-	deck       *lib.CardDeck
+	deck       *CardDeck
 	logger     zerolog.Logger
 }
 
@@ -38,7 +36,7 @@ const indexTemplatePath = "templates/index.gohtml"
 
 //NewServer returns an initialized Server
 func NewServer(config *Config) *Server {
-	deck, err := lib.NewCardDeck(config.CardsDir)
+	deck, err := NewCardDeck(config.CardsDir)
 	if err != nil {
 		log.Fatal().Err(err).Msg("deck build failure")
 	}
