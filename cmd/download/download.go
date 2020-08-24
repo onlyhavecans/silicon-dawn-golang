@@ -29,12 +29,14 @@ func main() {
 	z, err := retrieveZip(cardsURL)
 	if err != nil {
 		fmt.Printf("retrieveZip(%s) err = %v\n", cardsURL, err)
+		os.Exit(1)
 	}
 
 	fmt.Print("Unzipping files\n")
 	err = unzipFiles(z, cardsDirectory)
 	if err != nil {
 		fmt.Printf("unzipZiles(zipfile, %q) err = %v\n", cardsDirectory, err)
+		os.Exit(1)
 	}
 
 	fmt.Print("Finished!\n")
