@@ -1,8 +1,9 @@
 package main
 
 import (
-	"log"
 	"os"
+
+	"github.com/rs/zerolog/log"
 
 	"onlyhavecans.works/amy/silicondawn"
 )
@@ -24,5 +25,7 @@ func main() {
 
 	server := silicondawn.NewServer(config)
 
-	log.Fatal(server.Start())
+	if err := server.Start(); err != nil {
+		log.Fatal().Err(err).Msg("failed to start server")
+	}
 }

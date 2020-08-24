@@ -10,7 +10,7 @@ import (
 
 var (
 	BadCardError     = errors.New("bad card")
-	NoCardsAvailible = errors.New("no cards in deck")
+	NoCardsAvailable = errors.New("no cards in deck")
 )
 
 type Card struct {
@@ -50,7 +50,7 @@ func NewCardDeck(dir string) (*CardDeck, error) {
 		return &CardDeck{}, err
 	}
 	if deck.empty() {
-		return &CardDeck{}, NoCardsAvailible
+		return &CardDeck{}, NoCardsAvailable
 	}
 	return deck, nil
 }
@@ -61,7 +61,7 @@ func (d *CardDeck) Count() int {
 
 func (d *CardDeck) Draw() (Card, error) {
 	if d.empty() {
-		return Card{}, NoCardsAvailible
+		return Card{}, NoCardsAvailable
 	}
 	drawNum := rand.Intn(len(d.cards))
 	c := d.cards[drawNum]

@@ -11,7 +11,7 @@ func TestNewCard_old(t *testing.T) {
 	arg := "what/a/good/card.jpg"
 	got, err := NewCard(arg)
 	if err != nil {
-		t.Errorf("NewCard(%q) err = %w", arg, err)
+		t.Errorf("NewCard(%q) err = %v", arg, err)
 	}
 	wantFront := "card.jpg"
 	if gotFront := got.Front(); gotFront != wantFront {
@@ -24,7 +24,7 @@ func TestNewCard_old(t *testing.T) {
 
 	got, err = NewCard("just-card.jpg")
 	if err != nil {
-		t.Errorf("Good Card Expected: nil err, got: %w", err)
+		t.Errorf("Good Card Expected: nil err, got: %v", err)
 	}
 	if f := got.Front(); f != "just-card.jpg" {
 		t.Errorf("Expected Front: just-card.jpg, Got: %s", f)
@@ -45,7 +45,7 @@ func TestNewCard_discard(t *testing.T) {
 func TestNewCardDeck(t *testing.T) {
 	got, err := NewCardDeck("data")
 	if err != nil {
-		t.Errorf("Expected: nil error, Got: %w", err)
+		t.Errorf("Expected: nil error, Got: %v", err)
 	}
 
 	if c := len(got.cards); c == 0 {

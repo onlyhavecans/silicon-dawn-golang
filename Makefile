@@ -17,7 +17,7 @@ test:
 build: data
 	docker build -t $(IMAGE) .
 
-run: docker-build
+run: docker-run
 	 docker run -p 8080:3200 --name Make-Dawn $(IMAGE)
 
 push:
@@ -32,4 +32,3 @@ local: local-build
 
 download: local-build
 	$(DL_BIN)
-

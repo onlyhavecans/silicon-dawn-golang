@@ -1,0 +1,13 @@
+GET http://localhost:8080
+
+###
+GET http://localhost:8080/robots.txt
+
+###
+GET http://localhost:8080/marbles
+
+###
+GET http://localhost:8080/cards/wands-2.jpg
+
+###
+GET http://localhost:8080/cards/what

@@ -12,7 +12,10 @@ github.com/dsnet/compress/internal/prefix
 ## explicit
 # github.com/golang/snappy v0.0.1
 github.com/golang/snappy
-# github.com/klauspost/compress v1.10.11
+# github.com/justinas/alice v1.2.0
+## explicit
+github.com/justinas/alice
+# github.com/klauspost/compress v1.10.10
 ## explicit
 github.com/klauspost/compress/flate
 github.com/klauspost/compress/fse
@@ -33,7 +36,17 @@ github.com/nwaples/rardecode
 ## explicit
 github.com/pierrec/lz4
 github.com/pierrec/lz4/internal/xxh32
-# github.com/ulikunitz/xz v0.5.8
+# github.com/rs/xid v1.2.1
+github.com/rs/xid
+# github.com/rs/zerolog v1.19.0
+## explicit
+github.com/rs/zerolog
+github.com/rs/zerolog/hlog
+github.com/rs/zerolog/hlog/internal/mutil
+github.com/rs/zerolog/internal/cbor
+github.com/rs/zerolog/internal/json
+github.com/rs/zerolog/log
+# github.com/ulikunitz/xz v0.5.7
 ## explicit
 github.com/ulikunitz/xz
 github.com/ulikunitz/xz/internal/hash
