@@ -13,10 +13,12 @@ import (
 	"github.com/mholt/archiver/v3"
 )
 
-func main() {
-	cardsDirectory := "data"
-	cardsURL := "http://egypt.urnash.com/media/blogs.dir/1/files/2018/01/The-Tarot-of-the-Silicon-Dawn.zip"
+const (
+	cardsDirectory = "data"
+	cardsURL       = "http://egypt.urnash.com/media/blogs.dir/1/files/2018/01/The-Tarot-of-the-Silicon-Dawn.zip"
+)
 
+func main() {
 	fmt.Printf("Creating card directory %s\n", cardsDirectory)
 	err := os.MkdirAll(cardsDirectory, 0700)
 	if err != nil {
@@ -60,10 +62,9 @@ func unzipFiles(zipData []byte, destinationDir string) error {
 		if err != nil {
 			return err
 		}
-		//noinspection GoUnhandledErrorResult
-		defer f.Close()
 
 		if skipFile(f.Name()) {
+			_ = f.Close()
 			continue
 		}
 
@@ -71,13 +72,17 @@ func unzipFiles(zipData []byte, destinationDir string) error {
 		body, err := ioutil.ReadAll(f)
 		if err != nil {
 			fmt.Print("Failure to read compressed file ", f.Name(), err)
+			_ = f.Close()
 			continue
 		}
 
 		err = ioutil.WriteFile(fileName, body, 0644)
 		if err != nil {
+			_ = f.Close()
 			return err
 		}
+
+		_ = f.Close()
 	}
 	return nil
 }
