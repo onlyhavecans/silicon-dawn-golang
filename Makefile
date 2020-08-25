@@ -20,7 +20,7 @@ build: data
 run: docker-run
 	 docker run -p 8080:3200 --name Make-Dawn $(IMAGE)
 
-push:
+push: build
 	docker push $(IMAGE)
 
 local-build: $(BIN)
