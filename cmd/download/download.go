@@ -14,32 +14,41 @@ import (
 )
 
 const (
-	cardsDirectory = "data"
-	cardsURL       = "http://egypt.urnash.com/media/blogs.dir/1/files/2018/01/The-Tarot-of-the-Silicon-Dawn.zip"
+	cardsDir = "data"
+	cardsURL = "http://egypt.urnash.com/media/blogs.dir/1/files/2018/01/The-Tarot-of-the-Silicon-Dawn.zip"
+	exitFail = 1
 )
 
 func main() {
-	fmt.Printf("Creating card directory %s\n", cardsDirectory)
-	err := os.MkdirAll(cardsDirectory, 0700)
+	if err := run(os.Args, cardsDir, cardsURL, os.Stdout); err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(exitFail)
+	}
+}
+
+func run(_ []string, outDir string, url string, stdout io.Writer) error {
+	fmt.Fprintf(stdout, "Creating card directory %s\n", outDir)
+	err := os.MkdirAll(outDir, 0700)
 	if err != nil {
-		fmt.Printf("os.MkDirAll err = %v\n", err)
+		fmt.Fprintf(stdout, "os.MkDirAll err = %v\n", err)
 	}
 
-	fmt.Print("Getting Zip File\n")
+	fmt.Fprint(stdout, "Getting Zip File\n")
 	z, err := retrieveZip(cardsURL)
 	if err != nil {
-		fmt.Printf("retrieveZip(%s) err = %v\n", cardsURL, err)
-		os.Exit(1)
+		err = fmt.Errorf("retrieveZip(%s) err = %w", cardsURL, err)
+		return err
 	}
 
 	fmt.Print("Unzipping files\n")
-	err = unzipFiles(z, cardsDirectory)
+	err = unzipFiles(z, outDir)
 	if err != nil {
-		fmt.Printf("unzipZiles(zipfile, %q) err = %v\n", cardsDirectory, err)
-		os.Exit(1)
+		err = fmt.Errorf("unzipZiles(zipfile, %q) err = %w", outDir, err)
+		return err
 	}
 
-	fmt.Print("Finished!\n")
+	fmt.Fprint(stdout, "Finished!\n")
+	return nil
 }
 
 func unzipFiles(zipData []byte, destinationDir string) error {
