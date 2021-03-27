@@ -37,8 +37,8 @@ func TestNewCard_old(t *testing.T) {
 func TestNewCard_discard(t *testing.T) {
 	arg := "invalid-card.png"
 	_, err := NewCard(arg)
-	if !errors.Is(err, BadCardError) {
-		t.Errorf("NewCard(%q) err = %v; want %v", arg, err, BadCardError)
+	if !errors.Is(err, ErrBadCard) {
+		t.Errorf("NewCard(%q) err = %v; want %v", arg, err, ErrBadCard)
 	}
 }
 
