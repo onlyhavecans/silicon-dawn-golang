@@ -1,4 +1,4 @@
-# github.com/andybalholm/brotli v1.0.0
+# github.com/andybalholm/brotli v1.0.1
 ## explicit
 github.com/andybalholm/brotli
 # github.com/dsnet/compress v0.0.1
@@ -8,37 +8,39 @@ github.com/dsnet/compress/bzip2/internal/sais
 github.com/dsnet/compress/internal
 github.com/dsnet/compress/internal/errors
 github.com/dsnet/compress/internal/prefix
-# github.com/frankban/quicktest v1.10.0
+# github.com/golang/snappy v0.0.3
 ## explicit
-# github.com/golang/snappy v0.0.1
 github.com/golang/snappy
 # github.com/justinas/alice v1.2.0
 ## explicit
 github.com/justinas/alice
-# github.com/klauspost/compress v1.10.11
+# github.com/klauspost/compress v1.11.13
 ## explicit
 github.com/klauspost/compress/flate
 github.com/klauspost/compress/fse
+github.com/klauspost/compress/gzip
 github.com/klauspost/compress/huff0
 github.com/klauspost/compress/snappy
 github.com/klauspost/compress/zstd
 github.com/klauspost/compress/zstd/internal/xxhash
-# github.com/klauspost/pgzip v1.2.4
+# github.com/klauspost/pgzip v1.2.5
 ## explicit
 github.com/klauspost/pgzip
-# github.com/mholt/archiver/v3 v3.3.0
+# github.com/mholt/archiver/v3 v3.5.0
 ## explicit
 github.com/mholt/archiver/v3
 # github.com/nwaples/rardecode v1.1.0
-## explicit
 github.com/nwaples/rardecode
-# github.com/pierrec/lz4 v2.5.2+incompatible
+# github.com/pierrec/lz4/v4 v4.1.4
 ## explicit
-github.com/pierrec/lz4
-github.com/pierrec/lz4/internal/xxh32
+github.com/pierrec/lz4/v4
+github.com/pierrec/lz4/v4/internal/lz4block
+github.com/pierrec/lz4/v4/internal/lz4errors
+github.com/pierrec/lz4/v4/internal/lz4stream
+github.com/pierrec/lz4/v4/internal/xxh32
 # github.com/rs/xid v1.2.1
 github.com/rs/xid
-# github.com/rs/zerolog v1.19.0
+# github.com/rs/zerolog v1.21.0
 ## explicit
 github.com/rs/zerolog
 github.com/rs/zerolog/hlog
@@ -46,7 +48,7 @@ github.com/rs/zerolog/hlog/internal/mutil
 github.com/rs/zerolog/internal/cbor
 github.com/rs/zerolog/internal/json
 github.com/rs/zerolog/log
-# github.com/ulikunitz/xz v0.5.8
+# github.com/ulikunitz/xz v0.5.10
 ## explicit
 github.com/ulikunitz/xz
 github.com/ulikunitz/xz/internal/hash

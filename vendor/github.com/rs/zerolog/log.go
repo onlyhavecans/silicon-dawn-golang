@@ -188,6 +188,7 @@ type Logger struct {
 	sampler Sampler
 	context []byte
 	hooks   []Hook
+	stack   bool
 }
 
 // New creates a root logger with given output writer. If the output writer implements
@@ -251,6 +252,9 @@ func (l *Logger) UpdateContext(update func(c Context) Context) {
 	}
 	if cap(l.context) == 0 {
 		l.context = make([]byte, 0, 500)
+	}
+	if len(l.context) == 0 {
+		l.context = enc.AppendBeginMarker(l.context)
 	}
 	c := update(Context{*l})
 	l.context = c.l.context
@@ -421,6 +425,9 @@ func (l *Logger) newEvent(level Level, done func(string)) *Event {
 	}
 	if l.context != nil && len(l.context) > 1 {
 		e.buf = enc.AppendObjectData(e.buf, l.context)
+	}
+	if l.stack {
+		e.Stack()
 	}
 	return e
 }

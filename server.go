@@ -85,6 +85,7 @@ func NewServer(config *Config) *Server {
 	return server
 }
 
+// Start starts the httpServer & returns when done
 func (s *Server) Start() error {
 	log.Info().
 		Str("port", s.config.Port).

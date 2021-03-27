@@ -17,8 +17,8 @@ test:
 build: data
 	docker build -t $(IMAGE) .
 
-run: docker-run
-	 docker run -p 8080:3200 --name Make-Dawn $(IMAGE)
+docker-run: build
+	docker run -p 8080:3200 --name Make-Dawn $(IMAGE)
 
 push: build
 	docker push $(IMAGE)
