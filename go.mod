@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/justinas/alice v1.2.0
 	github.com/mholt/archiver/v3 v3.5.0
-	github.com/rs/zerolog v1.25.0
+	github.com/rs/zerolog v1.26.1
 )
 
 require (
