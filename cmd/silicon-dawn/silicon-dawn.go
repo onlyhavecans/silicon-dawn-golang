@@ -5,7 +5,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"onlyhavecans.works/amy/silicondawn"
+	"github.com/onlyhavecans/silicondawn"
 )
 
 func main() {
