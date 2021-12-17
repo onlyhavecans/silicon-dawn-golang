@@ -1,7 +1,7 @@
 # github.com/andybalholm/brotli v1.0.3
 ## explicit; go 1.12
 github.com/andybalholm/brotli
-# github.com/dsnet/compress v0.0.1
+# github.com/dsnet/compress v0.0.2-0.20210315054119-f66993602bf5
 ## explicit; go 1.9
 github.com/dsnet/compress
 github.com/dsnet/compress/bzip2
@@ -23,12 +23,13 @@ github.com/klauspost/compress/fse
 github.com/klauspost/compress/gzip
 github.com/klauspost/compress/huff0
 github.com/klauspost/compress/internal/snapref
+github.com/klauspost/compress/zip
 github.com/klauspost/compress/zstd
 github.com/klauspost/compress/zstd/internal/xxhash
 # github.com/klauspost/pgzip v1.2.5
 ## explicit
 github.com/klauspost/pgzip
-# github.com/mholt/archiver/v3 v3.5.0
+# github.com/mholt/archiver/v3 v3.5.1
 ## explicit; go 1.13
 github.com/mholt/archiver/v3
 # github.com/nwaples/rardecode v1.1.2
