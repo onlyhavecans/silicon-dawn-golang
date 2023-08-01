@@ -1,19 +1,23 @@
-FROM golang:1.17 AS builder
+FROM golang:1.20.6 AS build
 
 ENV GOFLAGS="-mod=vendor"
 
 WORKDIR /go/src/app
 COPY . .
 
-ARG CGO_ENABLED=0
-RUN go install ./cmd/silicon-dawn
+RUN go vet -v
+RUN go test -v
+
+RUN CGO_ENABLED=0 go install ./cmd/silicon-dawn
 
 # Final Stage
-FROM scratch AS production
+# FROM scratch AS production
+FROM gcr.io/distroless/static-debian11 as production
 EXPOSE 3200/tcp
 
-COPY --from=builder /go/bin/silicon-dawn /
+COPY --from=build /go/bin/silicon-dawn /
 COPY templates /templates
 COPY data /data
 
-CMD ["./silicon-dawn"]
+USER nonroot
+CMD ["/silicon-dawn"]

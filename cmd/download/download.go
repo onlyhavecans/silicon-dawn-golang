@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -28,15 +27,15 @@ func main() {
 
 func run(_ []string, outDir string, url string, stdout io.Writer) error {
 	fmt.Fprintf(stdout, "Creating card directory %s\n", outDir)
-	err := os.MkdirAll(outDir, 0700)
+	err := os.MkdirAll(outDir, 0o700)
 	if err != nil {
 		fmt.Fprintf(stdout, "os.MkDirAll err = %v\n", err)
 	}
 
 	fmt.Fprint(stdout, "Getting Zip File\n")
-	z, err := retrieveZip(cardsURL)
+	z, err := retrieveZip(url)
 	if err != nil {
-		err = fmt.Errorf("retrieveZip(%s) err = %w", cardsURL, err)
+		err = fmt.Errorf("retrieveZip(%s) err = %w", url, err)
 		return err
 	}
 
@@ -80,14 +79,14 @@ func unzipFiles(zipData []byte, destinationDir string) error {
 		}
 
 		fileName := filepath.Join(destinationDir, f.Name())
-		body, err := ioutil.ReadAll(f)
+		body, err := io.ReadAll(f)
 		if err != nil {
 			fmt.Print("Failure to read compressed file ", f.Name(), err)
 			_ = f.Close()
 			continue
 		}
 
-		err = ioutil.WriteFile(fileName, body, 0644)
+		err = os.WriteFile(fileName, body, 0o644)
 		if err != nil {
 			_ = f.Close()
 			return err
@@ -105,7 +104,7 @@ func retrieveZip(url string) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	return ioutil.ReadAll(resp.Body)
+	return io.ReadAll(resp.Body)
 }
 
 func skipFile(name string) bool {

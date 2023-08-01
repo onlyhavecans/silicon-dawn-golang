@@ -4,12 +4,20 @@ SRV_BIN=./bin/silicon-dawn
 DL_PKG=./cmd/download
 DL_BIN=./bin/download
 
-all: update test docker-run
+all: lint fmt test docker-run
 
 update:
 	go get -u ./...
 	go mod tidy
 	go mod vendor
+
+lint:
+	golangci-lint run
+
+fmt:
+	go install mvdan.cc/gofumpt@latest
+	go fmt ./...
+	gofumpt -w ./
 
 test:
 	go test ./...
@@ -18,7 +26,7 @@ build: data
 	docker build -t $(IMAGE) .
 
 docker-run: build
-	docker run -p 8080:3200 --name Make-Dawn $(IMAGE)
+	docker run --rm -p 8080:3200 --name Make-Dawn $(IMAGE)
 
 push: build
 	docker push $(IMAGE)

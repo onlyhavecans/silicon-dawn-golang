@@ -69,7 +69,7 @@ func (d *CardDeck) Count() int {
 	return len(d.cards)
 }
 
-//Draw gets a card
+// Draw gets a card
 func (d *CardDeck) Draw() (Card, error) {
 	if d.empty() {
 		return Card{}, ErrNoCardsAvailable

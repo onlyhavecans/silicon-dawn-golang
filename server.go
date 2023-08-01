@@ -13,28 +13,29 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-//Config stores the server's config
+// Config stores the server's config
 type Config struct {
 	Port     string
 	CardsDir string
 	logLevel zerolog.Level
 }
 
-//Server is an instance of silicon-dawn server
+// Server is an instance of silicon-dawn server
 type Server struct {
 	httpServer *http.Server
 	config     *Config
 	templates  *template.Template
 	deck       *CardDeck
-	logger     zerolog.Logger
 }
 
-const rootPath = "/"
-const cardsPath = "/cards/"
+const (
+	rootPath  = "/"
+	cardsPath = "/cards/"
+)
 
 const indexTemplatePath = "templates/index.gohtml"
 
-//NewServer returns an initialized Server
+// NewServer returns an initialized Server
 func NewServer(config *Config) *Server {
 	deck, err := NewCardDeck(config.CardsDir)
 	if err != nil {
