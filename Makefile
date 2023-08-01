@@ -1,8 +1,7 @@
 IMAGE=skwrl/silicon-dawn:latest
 SRV_PKG=./cmd/silicon-dawn
 SRV_BIN=./bin/silicon-dawn
-DL_PKG=./cmd/download
-DL_BIN=./bin/download
+CARDS=data
 
 all: lint fmt test docker-run
 
@@ -22,7 +21,7 @@ fmt:
 test:
 	go test ./...
 
-build: data
+build: $(CARDS)
 	docker build -t $(IMAGE) .
 
 docker-run: build
@@ -33,10 +32,12 @@ push: build
 
 local-build: $(BIN)
 	go build -v -o $(SRV_BIN) $(SRV_PKG)
-	go build -v -o $(DL_BIN) $(DL_PKG)
 
 local: local-build
 	$(SRV_BIN)
 
-download: local-build
-	$(DL_BIN)
+$(DAWNZIP):
+	wget "http://egypt.urnash.com/media/blogs.dir/1/files/2018/01/The-Tarot-of-the-Silicon-Dawn.zip"
+
+$(CARDS): $(DAWNZIP)
+	unzip -oj $(DAWNZIP) -x "__MACOSX/*" "*/sand-home*" -d $(CARDS)
