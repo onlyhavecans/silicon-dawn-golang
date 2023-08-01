@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 var (
@@ -54,7 +53,6 @@ type CardDeck struct {
 // NewCardDeck generate a deck of cards from a directory
 func NewCardDeck(dir string) (*CardDeck, error) {
 	deck := &CardDeck{Directory: dir}
-	rand.Seed(time.Now().UnixNano())
 	if err := deck.populate(); err != nil {
 		return &CardDeck{}, err
 	}
