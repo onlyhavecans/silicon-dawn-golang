@@ -1,6 +1,7 @@
 IMAGE=skwrl/silicon-dawn:latest
 SRV_PKG=./cmd/silicon-dawn
 SRV_BIN=./bin/silicon-dawn
+DAWNZIP=The-Tarot-of-the-Silicon-Dawn.zip
 CARDS=data
 
 all: lint fmt test docker-run
