@@ -43,7 +43,7 @@ func TestNewCard_discard(t *testing.T) {
 }
 
 func TestNewCardDeck(t *testing.T) {
-	got, err := NewCardDeck("data")
+	got, err := NewCardDeck("test")
 	if err != nil {
 		t.Errorf("Expected: nil error, Got: %v", err)
 	}
