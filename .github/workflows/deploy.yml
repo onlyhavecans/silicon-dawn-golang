@@ -9,9 +9,8 @@ on:
 jobs:
   docker:
     needs:
-      - Build
-      - Test
-      - golangci
+      - build
+      - lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
