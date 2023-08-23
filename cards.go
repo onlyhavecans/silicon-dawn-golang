@@ -1,8 +1,9 @@
 package silicondawn
 
 import (
+	"crypto/rand"
 	"errors"
-	"math/rand"
+	"math/big"
 	"path/filepath"
 	"strings"
 )
@@ -72,8 +73,12 @@ func (d *CardDeck) Draw() (Card, error) {
 	if d.empty() {
 		return Card{}, ErrNoCardsAvailable
 	}
-	drawNum := rand.Intn(len(d.cards))
-	c := d.cards[drawNum]
+	cardCount := big.NewInt(int64(len(d.cards)))
+	drawNum, err := rand.Int(rand.Reader, cardCount)
+	if err != nil {
+		return Card{}, err
+	}
+	c := d.cards[drawNum.Int64()]
 	return c, nil
 }
 
