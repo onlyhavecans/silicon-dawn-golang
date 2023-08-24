@@ -6,12 +6,38 @@ on:
     branches:
       - 'main'
 
+ENV:
+  CACHE_KEY: 2023-08-23
+
 jobs:
+  cache-cards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache cards
+        id: cache-cards
+        uses: actions/cache@v3
+        with:
+          path: data
+          key: ${{ env.CACHE_KEY }}
+
+      - name: Download cards
+        if: steps.cache-cards.outputs.cache-hit == false
+        run: >
+          make data
+
   docker:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - uses: actions/cache/restore@v3
+        id: cache
+        with:
+          path: data
+          key: ${{ env.CACHE_KEY }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
