@@ -8,7 +8,7 @@ COPY . .
 RUN go vet -v
 RUN go test -v
 
-RUN CGO_ENABLED=0 go install ./cmd/silicon-dawn
+RUN CGO_ENABLED=0 go install -trimpath ./cmd/silicon-dawn
 
 # Final Stage
 # FROM scratch AS production
