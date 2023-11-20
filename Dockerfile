@@ -5,14 +5,13 @@ ENV GOFLAGS="-mod=vendor"
 WORKDIR /go/src/app
 COPY . .
 
-RUN go vet -v
-RUN go test -v
+RUN go vet && go test ./...
 
 RUN CGO_ENABLED=0 go install -trimpath ./cmd/silicon-dawn
 
 # Final Stage
 # FROM scratch AS production
-FROM gcr.io/distroless/static-debian11 as production
+FROM gcr.io/distroless/static-debian12 as production
 EXPOSE 3200/tcp
 
 COPY --from=build /go/bin/silicon-dawn /
