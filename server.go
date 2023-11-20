@@ -127,6 +127,7 @@ func (s *Server) root(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) errorHandler(w http.ResponseWriter, _ *http.Request, status int) {
 	w.WriteHeader(status)
-	msg := fmt.Sprintf("You drew a %d\nI doubt this was the card you are lookging for.", status)
+	// TODO(onlyhavecans) Bring in a template here
+	msg := fmt.Sprintf("You drew a %d\nI doubt this was the card you are lookging for.\n", status)
 	_, _ = w.Write([]byte(msg))
 }
