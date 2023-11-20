@@ -1,10 +1,10 @@
 package silicondawn
 
 import (
-	"fmt"
 	"html/template"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/justinas/alice"
@@ -33,7 +33,10 @@ const (
 	cardsPath = "/cards/"
 )
 
-const indexTemplatePath = "templates/index.gohtml"
+const (
+	indexTemplatePath = "templates/index.gohtml"
+	templatesPath     = "templates/*"
+)
 
 // NewServer returns an initialized Server
 func NewServer(config *Config) *Server {
@@ -67,9 +70,7 @@ func NewServer(config *Config) *Server {
 		Handler:      h,
 	}
 
-	templates := template.Must(template.ParseFiles(
-		indexTemplatePath,
-	))
+	templates := template.Must(template.ParseGlob(templatesPath))
 
 	server := &Server{
 		httpServer: httpServer,
@@ -114,6 +115,7 @@ func (s *Server) root(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-type", "text/html")
+
 	err = s.templates.ExecuteTemplate(w, "index.gohtml", map[string]string{
 		"dir":  "cards",
 		"name": c.Front(),
@@ -127,7 +129,12 @@ func (s *Server) root(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) errorHandler(w http.ResponseWriter, _ *http.Request, status int) {
 	w.WriteHeader(status)
-	// TODO(onlyhavecans) Bring in a template here
-	msg := fmt.Sprintf("You drew a %d\nI doubt this was the card you are lookging for.\n", status)
-	_, _ = w.Write([]byte(msg))
+	w.Header().Set("Content-type", "text/html")
+
+	err := s.templates.ExecuteTemplate(w, "error.gohtml", map[string]string{
+		"status": strconv.Itoa(status),
+	})
+	if err != nil {
+		log.Error().Err(err).Msg("could not render error page")
+	}
 }
