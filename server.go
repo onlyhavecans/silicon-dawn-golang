@@ -34,8 +34,9 @@ const (
 )
 
 const (
-	indexTemplatePath = "templates/index.gohtml"
-	templatesPath     = "templates/*"
+	templatesPath = "templates/*"
+	templateIndex = "index.gohtml"
+	templateError = "error.gohtml"
 )
 
 // NewServer returns an initialized Server
@@ -116,7 +117,7 @@ func (s *Server) root(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-type", "text/html")
 
-	err = s.templates.ExecuteTemplate(w, "index.gohtml", map[string]string{
+	err = s.templates.ExecuteTemplate(w, templateIndex, map[string]string{
 		"dir":  "cards",
 		"name": c.Front(),
 		"text": c.Back(),
@@ -131,7 +132,7 @@ func (s *Server) errorHandler(w http.ResponseWriter, _ *http.Request, status int
 	w.WriteHeader(status)
 	w.Header().Set("Content-type", "text/html")
 
-	err := s.templates.ExecuteTemplate(w, "error.gohtml", map[string]string{
+	err := s.templates.ExecuteTemplate(w, templateError, map[string]string{
 		"status": strconv.Itoa(status),
 	})
 	if err != nil {
