@@ -17,7 +17,7 @@ jobs:
 
       - name: Cache cards
         id: cache-cards
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: data
           key: ${{ env.CACHE_KEY }}
@@ -33,7 +33,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v4
         id: cache
         with:
           path: data
