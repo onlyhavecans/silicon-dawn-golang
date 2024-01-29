@@ -10,6 +10,7 @@ update:
 	go get -u ./...
 	go mod tidy
 	go mod vendor
+	go diff
 
 lint:
 	golangci-lint run
