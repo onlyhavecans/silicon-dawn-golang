@@ -6,7 +6,6 @@ on:
       - main
   pull_request:
 
-
 permissions:
   contents: read
   # Optional: allow read access to pull request. Use with `only-new-issues` option.
@@ -20,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: 'stable'
+          go-version: "stable"
           cache: false
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v4
