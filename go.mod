@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	github.com/justinas/alice v1.2.0
-	github.com/rs/zerolog v1.32.0
+	github.com/rs/zerolog v1.33.0
 )
 
 require (
