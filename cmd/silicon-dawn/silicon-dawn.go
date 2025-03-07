@@ -1,14 +1,16 @@
 package main
 
 import (
+	"log/slog"
 	"os"
 
 	"github.com/onlyhavecans/silicondawn/internal/server"
-	"github.com/rs/zerolog/log"
 )
 
 func main() {
-	config := &server.Config{}
+	config := &server.Config{
+		LogLevel: slog.LevelInfo,
+	}
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -25,6 +27,7 @@ func main() {
 	server := server.NewServer(config)
 
 	if err := server.Start(); err != nil {
-		log.Fatal().Err(err).Msg("failed to start server")
+		slog.Error("failed to start server", slog.Any("error", err))
+		os.Exit(1)
 	}
 }

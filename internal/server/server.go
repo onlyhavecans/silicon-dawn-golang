@@ -1,7 +1,9 @@
 package server
 
 import (
+	"context"
 	"html/template"
+	"log/slog"
 	"net/http"
 	"os"
 	"strconv"
@@ -10,16 +12,13 @@ import (
 	"github.com/onlyhavecans/silicondawn/internal/cards"
 
 	"github.com/justinas/alice"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/hlog"
-	"github.com/rs/zerolog/log"
 )
 
 // Config stores the server's config
 type Config struct {
 	Port     string
 	CardsDir string
-	logLevel zerolog.Level
+	LogLevel slog.Level
 }
 
 // Server is an instance of silicon-dawn server
@@ -28,6 +27,7 @@ type Server struct {
 	config     *Config
 	templates  *template.Template
 	deck       *cards.CardDeck
+	logger     *slog.Logger
 }
 
 const (
@@ -45,24 +45,21 @@ const (
 func NewServer(config *Config) *Server {
 	deck, err := cards.NewCardDeck(config.CardsDir)
 	if err != nil {
-		log.Fatal().Err(err).Msg("deck build failure")
+		slog.Error("deck build failure", slog.Any("error", err))
+		os.Exit(1)
 	}
+
+	// Configure logger
+	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: config.LogLevel,
+	})
+	logger := slog.New(handler)
 
 	mux := http.NewServeMux()
 
-	l := zerolog.New(os.Stdout)
-	l.Level(config.logLevel)
-
+	// Setup middleware chain
 	a := alice.New()
-	a = a.Append(hlog.NewHandler(l)).
-		Append(hlog.AccessHandler(func(r *http.Request, status, _ int, duration time.Duration) {
-			hlog.FromRequest(r).Info().
-				Str("method", r.Method).
-				Stringer("url", r.URL).
-				Int("status", status).
-				Dur("duration", duration).
-				Msg("")
-		}))
+	a = a.Append(LogHandler(logger))
 	h := a.Then(mux)
 
 	httpServer := &http.Server{
@@ -80,6 +77,7 @@ func NewServer(config *Config) *Server {
 		config:     config,
 		templates:  templates,
 		deck:       deck,
+		logger:     logger,
 	}
 
 	mux.HandleFunc("/robots.txt", server.robots)
@@ -92,10 +90,10 @@ func NewServer(config *Config) *Server {
 
 // Start starts the httpServer & returns when done
 func (s *Server) Start() error {
-	log.Info().
-		Str("port", s.config.Port).
-		Int("card count", s.deck.Count()).
-		Msg("Listening")
+	s.logger.LogAttrs(context.Background(), slog.LevelInfo, "Listening",
+		slog.String("port", s.config.Port),
+		slog.Int("card count", s.deck.Count()),
+	)
 	return s.httpServer.ListenAndServe()
 }
 
@@ -112,7 +110,8 @@ func (s *Server) root(w http.ResponseWriter, r *http.Request) {
 
 	c, err := s.deck.Draw()
 	if err != nil {
-		log.Error().Err(err).Msg("could not draw card")
+		LoggerFromRequest(r).LogAttrs(r.Context(), slog.LevelError, "could not draw card",
+			slog.Any("error", err))
 		s.errorHandler(w, r, http.StatusInternalServerError)
 		return
 	}
@@ -125,12 +124,13 @@ func (s *Server) root(w http.ResponseWriter, r *http.Request) {
 		"text": c.Back(),
 	})
 	if err != nil {
-		log.Warn().Err(err).Msg("template render error")
+		LoggerFromRequest(r).LogAttrs(r.Context(), slog.LevelWarn, "template render error",
+			slog.Any("error", err))
 		s.errorHandler(w, r, http.StatusInternalServerError)
 	}
 }
 
-func (s *Server) errorHandler(w http.ResponseWriter, _ *http.Request, status int) {
+func (s *Server) errorHandler(w http.ResponseWriter, r *http.Request, status int) {
 	w.WriteHeader(status)
 	w.Header().Set("Content-type", "text/html")
 
@@ -138,6 +138,7 @@ func (s *Server) errorHandler(w http.ResponseWriter, _ *http.Request, status int
 		"status": strconv.Itoa(status),
 	})
 	if err != nil {
-		log.Error().Err(err).Msg("could not render error page")
+		LoggerFromRequest(r).LogAttrs(r.Context(), slog.LevelError, "could not render error page",
+			slog.Any("error", err))
 	}
 }
