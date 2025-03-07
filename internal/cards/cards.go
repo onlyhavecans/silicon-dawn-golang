@@ -1,4 +1,4 @@
-package silicondawn
+package cards
 
 import (
 	"crypto/rand"

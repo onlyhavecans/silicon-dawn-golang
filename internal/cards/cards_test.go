@@ -1,11 +1,11 @@
-package silicondawn
+package cards
 
 import (
 	"errors"
 	"testing"
 )
 
-// todo: replace with table tests
+// TODO: replace with table tests
 func TestNewCard_old(t *testing.T) {
 	// Happy Path
 	arg := "what/a/good/card.jpg"

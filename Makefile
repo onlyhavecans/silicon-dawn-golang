@@ -21,6 +21,7 @@ fmt:
 	gofumpt -w ./
 
 test:
+	go vet ./...
 	go test ./...
 
 build: $(CARDS)

@@ -1,4 +1,4 @@
-package silicondawn
+package server
 
 import (
 	"html/template"
@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/onlyhavecans/silicondawn/internal/cards"
 
 	"github.com/justinas/alice"
 	"github.com/rs/zerolog"
@@ -25,7 +27,7 @@ type Server struct {
 	httpServer *http.Server
 	config     *Config
 	templates  *template.Template
-	deck       *CardDeck
+	deck       *cards.CardDeck
 }
 
 const (
@@ -41,7 +43,7 @@ const (
 
 // NewServer returns an initialized Server
 func NewServer(config *Config) *Server {
-	deck, err := NewCardDeck(config.CardsDir)
+	deck, err := cards.NewCardDeck(config.CardsDir)
 	if err != nil {
 		log.Fatal().Err(err).Msg("deck build failure")
 	}

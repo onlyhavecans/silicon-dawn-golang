@@ -3,13 +3,12 @@ package main
 import (
 	"os"
 
+	"github.com/onlyhavecans/silicondawn/internal/server"
 	"github.com/rs/zerolog/log"
-
-	"github.com/onlyhavecans/silicondawn"
 )
 
 func main() {
-	config := &silicondawn.Config{}
+	config := &server.Config{}
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -23,7 +22,7 @@ func main() {
 	}
 	config.CardsDir = cardDir
 
-	server := silicondawn.NewServer(config)
+	server := server.NewServer(config)
 
 	if err := server.Start(); err != nil {
 		log.Fatal().Err(err).Msg("failed to start server")
