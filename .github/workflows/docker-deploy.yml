@@ -7,13 +7,14 @@ on:
       - "main"
 
 env:
-  CACHE_KEY: 2023-08-23
+  CACHE_KEY: 2024-03-06
 
 jobs:
   cache-cards:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: extractions/setup-just@v2
 
       - name: Cache cards
         id: cache-cards
@@ -24,8 +25,7 @@ jobs:
 
       - name: Download cards
         if: steps.cache-cards.outputs.cache-hit == false
-        run: >
-          make data
+        run: just ensure-cards
 
   docker:
     runs-on: ubuntu-latest
