@@ -18,11 +18,15 @@ You can spin up a copy however you choose to do a docker or use my compose files
 ### Go Binary
 
 1. Install golang
+1. Install [Just](https://github.com/casey/just) command runner
 1. Check out this repository wherever you choose
-1. `go build -o bin/silicon-dawn cmd/silicon-dawn`
-1. `./bin/silicon-dawn get` to hydrate the cards data directory
-1. `./bin/silicon-dawn serve` to start the webserver
+1. Run `just local-build` to build the binary
+1. Run `just local` to start the webserver
 1. Browse to http://localhost:3200 to enjoy your pick
 1. Refresh the page for a fresh pick
+
+Alternatively, without Just:
+1. `go build -o bin/silicon-dawn cmd/silicon-dawn`
+1. `./bin/silicon-dawn`
 
 Or! if you are super lazy check out [my hosted copy of this](https://silicon-dawn.cards).
