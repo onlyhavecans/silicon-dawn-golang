@@ -11,7 +11,7 @@ RUN CGO_ENABLED=0 go install -trimpath ./cmd/silicon-dawn
 
 # Final Stage
 # FROM scratch AS production
-FROM gcr.io/distroless/static-debian12 AS production
+FROM gcr.io/distroless/static-debian12@sha256:f2ff10a709b0fd153997059b698ada702e4870745b6077eff03a5f4850ca91b6 AS production
 EXPOSE 3200/tcp
 
 COPY --from=build /go/bin/silicon-dawn /
