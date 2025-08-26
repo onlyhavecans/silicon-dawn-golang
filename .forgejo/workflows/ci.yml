@@ -7,23 +7,19 @@ on:
 
 permissions:
   contents: read
-  # Optional: allow read access to pull request. Use with `only-new-issues` option.
-  # pull-requests: read
 
 jobs:
-  golangci:
-    name: lint
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-go@v5
         with:
-          go-version: "stable"
-
+          go-version: stable
       - name: golangci-lint
         uses: https://github.com/golangci/golangci-lint-action@v8
         with:
-          version: latest
+          version: v2.4
 
   test:
     runs-on: ubuntu-latest
@@ -31,7 +27,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-go@v5
         with:
-          go-version: 'stable'
+          go-version: stable
 
       - name: Build
         run: go build -v ./...

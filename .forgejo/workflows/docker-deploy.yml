@@ -4,10 +4,10 @@ name: docker-deploy
 on:
   push:
     branches:
-      - "main"
+      - main
 
 env:
-  CACHE_KEY: 2024-03-06
+  CACHE_KEY: cards-2024-03-06
 
 jobs:
   cache-cards:
@@ -28,7 +28,8 @@ jobs:
 
       - name: Download cards
         if: steps.cache-cards.outputs.cache-hit == false
-        run: just ensure-cards
+        run: |
+          just ensure-cards
 
   docker:
     runs-on: ubuntu-latest
