@@ -7,7 +7,7 @@ cards := "data"
 
 # Default recipe
 default:
-  @just --list
+  @just --list --unsorted
 
 # Run lint, fmt, test, and docker-run
 all: lint fmt test docker-run
@@ -25,9 +25,7 @@ lint:
 
 # Format code
 fmt:
-    go install mvdan.cc/gofumpt@latest
-    go fmt ./...
-    gofumpt -w ./
+    golangci-lint fmt
 
 # Run tests
 test:
