@@ -14,7 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - run: apt install just
+      - name: install just
+        run: |
+          sudo apt-get update
+          sudo apt install just -y
 
       - name: Cache cards
         id: cache-cards
