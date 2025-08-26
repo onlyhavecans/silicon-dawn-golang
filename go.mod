@@ -1,4 +1,4 @@
-module github.com/onlyhavecans/silicondawn
+module onlyhavecans.works/onlyhavecans/silicon-dawn
 
 go 1.24
 

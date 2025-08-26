@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/onlyhavecans/silicondawn/internal/server"
+	"onlyhavecans.works/onlyhavecans/silicon-dawn/internal/server"
 )
 
 func main() {

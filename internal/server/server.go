@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/onlyhavecans/silicondawn/internal/cards"
+	"onlyhavecans.works/onlyhavecans/silicon-dawn/internal/cards"
 
 	"github.com/justinas/alice"
 )
