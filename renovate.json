@@ -3,9 +3,6 @@
   "extends": [
     "config:best-practices"
   ],
-  "ignorePaths": [
-    "docker-compose.yml"
-  ],
   "postUpdateOptions": [
     "gomodTidy",
     "gomodUpdateImportPaths",

@@ -1,9 +1,0 @@
----
-version: "3.8"
-
-services:
-  silicon-dawn:
-    image: skwrl/silicon-dawn:latest
-    restart: always
-    ports:
-      - "3200:3200"
