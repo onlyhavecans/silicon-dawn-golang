@@ -7,52 +7,41 @@ on:
       - main
 
 env:
-  CACHE_KEY: cards-2024-03-06
+  CACHE_KEY: 2024-03-06
 
 jobs:
-  cache-cards:
+  build-deploy:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-
-      - name: Cache cards
-        id: cache-check
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
-        with:
-          path: data
-          key: ${{ env.CACHE_KEY }}
-
-      - name: Download cards
-        if: steps.cache-check.outputs.cache-hit == false
-        run: |
-          sudo apt-get update -qq
-          sudo apt install just -y
-          just ensure-cards
-
-  docker:
-    runs-on: ubuntu-latest
-    needs:
-      - cache-cards
     steps:
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5
 
-      - uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+      - uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809  # v4
+        id: cache
         with:
-          path: data
-          key: ${{ env.CACHE_KEY }}
+          path: ./data
+          key: cards-${{ env.CACHE_KEY }}
+          restore-keys: |
+            cards-
+
+      - name: Download cards
+        if: steps.cache.outputs.cache-hit == false
+        run: |
+          curl -OL "http://egypt.urnash.com/media/blogs.dir/1/files/2018/01/The-Tarot-of-the-Silicon-Dawn.zip"
+          mkdir -p ./data
+          unzip -oj The-Tarot-of-the-Silicon-Dawn.zip -x "__MACOSX/*" "*/sand-home*" -d ./data
 
       - name: Set up Docker Buildx
-        uses: https://github.com/docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3
+        uses: actions/setup-buildx@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
 
       - name: Login to Docker Hub
-        uses: https://github.com/docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3
+        uses: actions/login-docker@184bdaa0721073962dff0199f1fb9940f07167d1  # v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        uses: https://github.com/docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
+        uses: actions/build-push-docker@263435318d21b8e681c14492fe198d362a7d2c83  # v6
         with:
           context: .
           push: true
