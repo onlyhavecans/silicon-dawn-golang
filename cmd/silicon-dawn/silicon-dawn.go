@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"onlyhavecans.works/onlyhavecans/silicon-dawn/internal/server"
 )
@@ -24,9 +27,16 @@ func main() {
 	}
 	config.CardsDir = cardDir
 
-	server := server.NewServer(config)
+	srv, err := server.NewServer(config)
+	if err != nil {
+		slog.Error("failed to build server", slog.Any("error", err))
+		os.Exit(1)
+	}
 
-	if err := server.Start(); err != nil {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	if err := srv.Start(ctx); err != nil {
 		slog.Error("failed to start server", slog.Any("error", err))
 		os.Exit(1)
 	}

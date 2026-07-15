@@ -1,8 +1,11 @@
 package server
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 	"html/template"
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
@@ -41,12 +44,17 @@ const (
 	templateError = "error.gohtml"
 )
 
-// NewServer returns an initialized Server
-func NewServer(config *Config) *Server {
+// NewServer returns an initialized Server, or an error if the card deck or
+// templates could not be loaded.
+func NewServer(config *Config) (*Server, error) {
 	deck, err := cards.NewCardDeck(config.CardsDir)
 	if err != nil {
-		slog.Error("deck build failure", slog.Any("error", err))
-		os.Exit(1)
+		return nil, fmt.Errorf("deck build failure: %w", err)
+	}
+
+	templates, err := template.ParseGlob(templatesPath)
+	if err != nil {
+		return nil, fmt.Errorf("template parse failure: %w", err)
 	}
 
 	// Configure logger
@@ -70,8 +78,6 @@ func NewServer(config *Config) *Server {
 		Handler:      h,
 	}
 
-	templates := template.Must(template.ParseGlob(templatesPath))
-
 	server := &Server{
 		httpServer: httpServer,
 		config:     config,
@@ -85,19 +91,42 @@ func NewServer(config *Config) *Server {
 	c := http.Dir(config.CardsDir)
 	mux.Handle(cardsPath, http.StripPrefix(cardsPath, http.FileServer(c)))
 
-	return server
+	return server, nil
 }
 
-// Start starts the httpServer & returns when done
-func (s *Server) Start() error {
-	s.logger.LogAttrs(context.Background(), slog.LevelInfo, "Listening",
+// Start starts the httpServer and blocks until ctx is canceled, at which
+// point it gracefully shuts down in-flight requests before returning.
+func (s *Server) Start(ctx context.Context) error {
+	s.logger.LogAttrs(ctx, slog.LevelInfo, "Listening",
 		slog.String("port", s.config.Port),
 		slog.Int("card count", s.deck.Count()),
 	)
-	return s.httpServer.ListenAndServe()
+
+	serveErr := make(chan error, 1)
+	go func() {
+		if err := s.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			serveErr <- err
+			return
+		}
+		serveErr <- nil
+	}()
+
+	select {
+	case err := <-serveErr:
+		return err
+	case <-ctx.Done():
+		s.logger.LogAttrs(context.Background(), slog.LevelInfo, "shutting down")
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := s.httpServer.Shutdown(shutdownCtx); err != nil {
+			return fmt.Errorf("graceful shutdown failed: %w", err)
+		}
+		return nil
+	}
 }
 
 func (s *Server) robots(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Content-type", "text/plain")
 	_, _ = w.Write([]byte("User-agent: *\nDisallow: /\n"))
 }
 
@@ -116,9 +145,8 @@ func (s *Server) root(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-type", "text/html")
-
-	err = s.templates.ExecuteTemplate(w, templateIndex, map[string]string{
+	var buf bytes.Buffer
+	err = s.templates.ExecuteTemplate(&buf, templateIndex, map[string]string{
 		"dir":  "cards",
 		"name": c.Front(),
 		"text": c.Back(),
@@ -127,18 +155,26 @@ func (s *Server) root(w http.ResponseWriter, r *http.Request) {
 		LoggerFromRequest(r).LogAttrs(r.Context(), slog.LevelWarn, "template render error",
 			slog.Any("error", err))
 		s.errorHandler(w, r, http.StatusInternalServerError)
+		return
 	}
+
+	w.Header().Set("Content-type", "text/html")
+	_, _ = io.Copy(w, &buf)
 }
 
 func (s *Server) errorHandler(w http.ResponseWriter, r *http.Request, status int) {
-	w.WriteHeader(status)
-	w.Header().Set("Content-type", "text/html")
-
-	err := s.templates.ExecuteTemplate(w, templateError, map[string]string{
+	var buf bytes.Buffer
+	err := s.templates.ExecuteTemplate(&buf, templateError, map[string]string{
 		"status": strconv.Itoa(status),
 	})
 	if err != nil {
 		LoggerFromRequest(r).LogAttrs(r.Context(), slog.LevelError, "could not render error page",
 			slog.Any("error", err))
+		w.WriteHeader(status)
+		return
 	}
+
+	w.Header().Set("Content-type", "text/html")
+	w.WriteHeader(status)
+	_, _ = io.Copy(w, &buf)
 }
