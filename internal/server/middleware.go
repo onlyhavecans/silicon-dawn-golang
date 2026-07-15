@@ -2,6 +2,8 @@ package server
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"log/slog"
 	"net/http"
 	"time"
@@ -17,7 +19,11 @@ func LogHandler(logger *slog.Logger) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Add logger to request context
 			ctx := r.Context()
-			reqLogger := logger.With("req_id", r.Header.Get("X-Request-ID"))
+			reqID := r.Header.Get("X-Request-ID")
+			if reqID == "" {
+				reqID = newRequestID()
+			}
+			reqLogger := logger.With("req_id", reqID)
 			ctx = context.WithValue(ctx, LoggerKey{}, reqLogger)
 			r = r.WithContext(ctx)
 
@@ -62,10 +68,19 @@ func (rw *responseWriter) WriteHeader(code int) {
 	rw.ResponseWriter.WriteHeader(code)
 }
 
-// Write captures a 200 status code if WriteHeader hasn't been called
+// Write writes the response body. The status code is captured by
+// WriteHeader, or defaults to 200 per http.ResponseWriter semantics if
+// WriteHeader is never called explicitly.
 func (rw *responseWriter) Write(b []byte) (int, error) {
-	if rw.statusCode == 0 {
-		rw.statusCode = http.StatusOK
-	}
 	return rw.ResponseWriter.Write(b)
+}
+
+// newRequestID generates a fallback request ID for requests that don't
+// arrive with an X-Request-ID header.
+func newRequestID() string {
+	var buf [8]byte
+	if _, err := rand.Read(buf[:]); err != nil {
+		return "unknown"
+	}
+	return hex.EncodeToString(buf[:])
 }
