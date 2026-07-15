@@ -7,7 +7,7 @@ cards := "data"
 
 # Default recipe
 default:
-  @just --list --unsorted
+    @just --list --unsorted
 
 # Run lint, fmt, test, and docker-run
 all: lint fmt test docker-run
@@ -34,23 +34,23 @@ test:
 
 # Build Docker image
 build: ensure-cards
-    docker build -t {{image}} .
+    docker build -t {{ image }} .
 
 # Run in Docker container
 docker-run: build
-    docker run --rm -p 8080:3200 --name Make-Dawn {{image}}
+    docker run --rm -p 8080:3200 --name Make-Dawn {{ image }}
 
 # Push Docker image
 push: build
-    docker push {{image}}
+    docker push {{ image }}
 
 # Build locally
 local-build:
-    go build -v -o {{srv_bin}} {{srv_pkg}}
+    go build -v -o {{ srv_bin }} {{ srv_pkg }}
 
 # Run locally
 local: local-build
-    {{srv_bin}}
+    {{ srv_bin }}
 
 # Download tarot zip file
 download-zip:
@@ -58,22 +58,22 @@ download-zip:
 
 # Extract cards
 extract-cards: download-zip
-    mkdir -p {{cards}}
-    unzip -oj {{dawnzip}} -x "__MACOSX/*" "*/sand-home*" -d {{cards}}
+    mkdir -p {{ cards }}
+    unzip -oj {{ dawnzip }} -x "__MACOSX/*" "*/sand-home*" -d {{ cards }}
 
 # Ensure cards directory exists
 ensure-cards:
     #!/usr/bin/env bash
-    if [ ! -d "{{cards}}" ] || [ -z "$(ls -A {{cards}})" ]; then
+    if [ ! -d "{{ cards }}" ] || [ -z "$(ls -A {{ cards }})" ]; then
         just download-zip
         just extract-cards
     fi
 
 # Clean built artifacts
 clean:
-    rm -f {{srv_bin}}
-    docker rmi {{image}} || true
+    rm -f {{ srv_bin }}
+    docker rmi {{ image }} || true
 
 # Run a specific test by name
 test-one test_name:
-    go test -v ./... -run "{{test_name}}"
+    go test -v ./... -run "{{ test_name }}"
