@@ -1,9 +1,9 @@
 package cards
 
 import (
-	"crypto/rand"
 	"errors"
-	"math/big"
+	"math/rand/v2"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -24,7 +24,7 @@ type Card struct {
 func NewCard(file string) (Card, error) {
 	if strings.HasSuffix(file, ".jpg") {
 		baseName := filepath.Base(file)
-		cardName := baseName[0 : len(baseName)-4]
+		cardName := strings.TrimSuffix(baseName, ".jpg")
 		return Card{name: cardName}, nil
 	}
 	return Card{}, ErrBadCard
@@ -55,10 +55,10 @@ type CardDeck struct {
 func NewCardDeck(dir string) (*CardDeck, error) {
 	deck := &CardDeck{Directory: dir}
 	if err := deck.populate(); err != nil {
-		return &CardDeck{}, err
+		return nil, err
 	}
 	if deck.empty() {
-		return &CardDeck{}, ErrNoCardsAvailable
+		return nil, ErrNoCardsAvailable
 	}
 	return deck, nil
 }
@@ -73,18 +73,15 @@ func (d *CardDeck) Draw() (Card, error) {
 	if d.empty() {
 		return Card{}, ErrNoCardsAvailable
 	}
-	cardCount := big.NewInt(int64(len(d.cards)))
-	drawNum, err := rand.Int(rand.Reader, cardCount)
-	if err != nil {
-		return Card{}, err
-	}
-	c := d.cards[drawNum.Int64()]
-	return c, nil
+	return d.cards[rand.IntN(len(d.cards))], nil
 }
 
 func (d *CardDeck) empty() bool {
 	return len(d.cards) == 0
 }
+
+// cardBackName is the deck's own card-back image; it isn't a drawable card.
+const cardBackName = "card-back"
 
 func (d *CardDeck) populate() error {
 	glob := filepath.Join(d.Directory, "*")
@@ -93,9 +90,20 @@ func (d *CardDeck) populate() error {
 		return err
 	}
 	for _, f := range files {
-		if c, err := NewCard(f); err == nil {
-			d.cards = append(d.cards, c)
+		c, err := NewCard(f)
+		if err != nil {
+			continue
 		}
+		if c.Name() == cardBackName {
+			continue
+		}
+		// Skip cards whose text-scan back image is missing so we never
+		// render a broken second image.
+		backPath := filepath.Join(d.Directory, c.Back())
+		if _, err := os.Stat(backPath); err != nil {
+			continue
+		}
+		d.cards = append(d.cards, c)
 	}
 	return nil
 }
