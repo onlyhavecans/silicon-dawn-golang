@@ -1,0 +1,52 @@
+version: 2
+
+project_name: silicon-dawn
+
+before:
+  hooks:
+    - go mod verify
+
+builds:
+  - id: silicon-dawn
+    main: ./cmd/silicon-dawn
+    binary: silicon-dawn
+    env:
+      - CGO_ENABLED=0
+      - GOFLAGS=-mod=vendor
+    flags:
+      - -trimpath
+    goos:
+      - linux
+    goarch:
+      - amd64
+
+# We only ship Docker images, not tarballs/binaries as release artifacts.
+archives:
+  - formats: [binary]
+
+checksum:
+  disable: true
+
+release:
+  disable: true
+
+dockers_v2:
+  - ids:
+      - silicon-dawn
+    dockerfile: Dockerfile.goreleaser
+    images:
+      - skwrl/silicon-dawn
+      - onlyhavecans.works/www/silicon-dawn
+    platforms:
+      - linux/amd64
+    extra_files:
+      - templates/
+      - data/
+    tags:
+      - "{{ .Tag }}"
+      - "v{{ .Major }}"
+      - "v{{ .Major }}.{{ .Minor }}"
+      - "latest"
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-snapshot-{{ .ShortCommit }}"

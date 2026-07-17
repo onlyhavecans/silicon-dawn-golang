@@ -1,0 +1,73 @@
+---
+# Bespoke release pipeline — NOT a caller of the shared go-release.yaml workflow.
+# silicon-dawn needs: vendored deps, a tarot-card data cache restore, and a
+# dual-registry (Docker Hub + Forgejo) push with release uploads disabled
+# (Docker-only delivery, no binary/tarball artifacts). See ops/ci-workflows
+# README "Repos with bespoke release pipelines" for why this stays hand-written
+# while CI (ci.yaml) still calls the shared go-ci.yaml workflow.
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+env:
+  CACHE_KEY: 2024-03-06
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        id: cache
+        with:
+          path: ./data
+          key: cards-${{ env.CACHE_KEY }}
+          restore-keys: |
+            cards-
+
+      - name: Download cards
+        if: steps.cache.outputs.cache-hit == false
+        run: |
+          curl -OL "http://egypt.urnash.com/media/blogs.dir/1/files/2018/01/The-Tarot-of-the-Silicon-Dawn.zip"
+          mkdir -p ./data
+          unzip -oj The-Tarot-of-the-Silicon-Dawn.zip -x "__MACOSX/*" "*/sand-home*" -d ./data
+
+      - name: Set up Docker Buildx
+        uses: actions/setup-buildx@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+        with:
+          driver-opts: |
+            network=host
+
+      - name: Login to Docker Hub
+        uses: actions/login-docker@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to Forgejo registry
+        uses: actions/login-docker@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4
+        with:
+          registry: onlyhavecans.works
+          username: ${{ secrets.FORGEJO_REGISTRY_USERNAME }}
+          password: ${{ secrets.FORGEJO_REGISTRY_TOKEN }}
+
+      - name: Run GoReleaser
+        uses: actions/goreleaser@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7
+        with:
+          distribution: goreleaser
+          version: v2.13 # renovate datasource=github-releases depName=goreleaser/goreleaser
+          args: release --clean

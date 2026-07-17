@@ -10,10 +10,16 @@ I wanted to take it to the NEXT LEVEL and rewrite it in golang and stuff it in a
 
 ### Docker
 
-I publish the docker container at [DockerHub](https://hub.docker.com/r/skwrl/silicon-dawn).
+I publish the docker container to [DockerHub](https://hub.docker.com/r/skwrl/silicon-dawn)
+and to my own Forgejo registry at `onlyhavecans.works/www/silicon-dawn`.
 It is fully self-contained and uses port 3200 internally.
 
 You can spin up a copy however you choose to do a docker or use my compose files in `/compose`
+
+Images are built and published by [GoReleaser](https://goreleaser.com) (see `.goreleaser.yaml`).
+Pushing a `main` commit alone does **not** deploy anything anymore &mdash; pushing a
+`vX.Y.Z` tag publishes a versioned release (`:vX.Y.Z`, `:vX.Y`, `:vX`, `:latest`) to both
+registries. The easiest way to do this is `just release X.Y.Z`.
 
 ### Go Binary
 

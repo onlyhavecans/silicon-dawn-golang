@@ -27,10 +27,20 @@ lint:
 fmt:
     golangci-lint fmt
 
+# Autofix lint issues. --disable govet: its fieldalignment autofix reorders
+# struct fields without updating positional literals elsewhere — silent
+# corruption, not a lint nit. fieldalignment is still reported by `just lint`.
+fix:
+    go fix ./...
+    golangci-lint run --fix --disable govet
+
 # Run tests
 test:
     go vet ./...
     go test ./...
+
+# Run lint and test
+check: lint test
 
 # Build Docker image
 build: ensure-cards
@@ -40,9 +50,28 @@ build: ensure-cards
 docker-run: build
     docker run --rm -p 8080:3200 --name Make-Dawn {{ image }}
 
-# Push Docker image
+# Push Docker image (legacy path; releases now go through GoReleaser, see `release`)
 push: build
     docker push {{ image }}
+
+# Build local snapshot images via GoReleaser (no push, for testing dockers_v2 config)
+release-snapshot: ensure-cards
+    goreleaser release --snapshot --clean
+
+# Validate .goreleaser.yaml
+goreleaser-check:
+    goreleaser check
+
+# Cut a new release: tags vX.Y.Z and pushes it, triggering the release workflow
+release version:
+    #!/usr/bin/env bash
+    set -e
+    if [ -n "$(git status --porcelain)" ]; then
+        echo "working tree is dirty — commit or stash first" >&2
+        exit 1
+    fi
+    git tag -a "v{{ version }}" -m "release v{{ version }}"
+    git push origin "v{{ version }}"
 
 # Build locally
 local-build:

@@ -1,0 +1,15 @@
+# syntax=docker/dockerfile:1
+# Used by GoReleaser's dockers_v2 pipe. GoReleaser builds the binary for each
+# target platform ahead of time, so this Dockerfile only assembles the final
+# image. See .goreleaser.yaml. For local development builds (with the go
+# build + test stage baked in) use the top-level Dockerfile instead.
+FROM onlyhavecans.works/oci/static:latest@sha256:c0e338684f4271e71aace102225a72650376f64452cb24135c343a221fa54d3b AS production
+EXPOSE 3200/tcp
+
+ARG TARGETPLATFORM
+COPY $TARGETPLATFORM/silicon-dawn /silicon-dawn
+COPY templates /templates
+COPY data /data
+
+USER nonroot
+CMD ["/silicon-dawn"]

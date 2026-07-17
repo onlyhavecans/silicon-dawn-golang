@@ -2,9 +2,37 @@
 version: "2"
 linters:
   default: standard
+  enable:
+    # Security
+    - gosec
+    - bodyclose
+    # Correctness / quality, low-noise
+    - misspell
+    - unconvert
+    - prealloc
+    - modernize # autofixable via `golangci-lint run --fix` / `just fix`
+  settings:
+    govet:
+      # enable-all includes fieldalignment (real perf value: smaller structs,
+      # less padding). Its autofix reorders struct fields but doesn't update
+      # positional (unkeyed) struct literals elsewhere that assumed the old
+      # order — safe to report, unsafe to auto-apply. See the Justfile's
+      # `fix` recipe: it runs with `--disable govet` for exactly this reason.
+      # Never run `golangci-lint run --fix` without that flag.
+      enable-all: true
+  exclusions:
+    presets:
+      - comments
+      - std-error-handling
+      - common-false-positives
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
+          - gosec
+          - forcetypeassert
 formatters:
   enable:
     - gofmt
-    - gofumpt
     - goimports
-    - golines
+    - gofumpt
