@@ -8,10 +8,27 @@ on:
   pull_request:
 
 jobs:
-  ci:
-    uses: ops/ci-workflows/.forgejo/workflows/go-ci.yaml@v1
-    with:
-      vendored: true
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: https://onlyhavecans.works/ops/ci-workflows/actions/go-lint@39b755b91f808b6b381d2d2d1c3baee2ecc3beb5 # v1
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: https://onlyhavecans.works/ops/ci-workflows/actions/go-test@39b755b91f808b6b381d2d2d1c3baee2ecc3beb5 # v1
+        with:
+          vendored: 'true'
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: https://onlyhavecans.works/ops/ci-workflows/actions/go-build@39b755b91f808b6b381d2d2d1c3baee2ecc3beb5 # v1
+        with:
+          vendored: 'true'
 
   goreleaser-check:
     runs-on: ubuntu-latest
