@@ -32,7 +32,7 @@ jobs:
           unzip -oj The-Tarot-of-the-Silicon-Dawn.zip -x "__MACOSX/*" "*/sand-home*" -d ./data
 
       - name: Set up Docker Buildx
-        uses: actions/setup-buildx@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+        uses: actions/setup-buildx@37fe631027851001ddb9b187196cc803df7f5f0e # v4
         with:
           driver-opts: |
             network=host
