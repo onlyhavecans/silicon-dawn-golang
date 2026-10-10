@@ -1,4 +1,4 @@
-FROM onlyhavecans.works/oci/golang:1.27@sha256:8b6d507b46291cf17022e79e4edcc7fefb0ee1cd66ad40088a55e429552d6f05 AS build
+FROM onlyhavecans.works/oci/golang:1.27.1 AS build
 
 ENV GOFLAGS="-mod=vendor"
 
