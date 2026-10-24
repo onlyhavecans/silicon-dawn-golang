@@ -11,7 +11,7 @@ RUN CGO_ENABLED=0 go install -trimpath ./cmd/silicon-dawn
 
 # Final Stage
 # FROM scratch AS production
-FROM onlyhavecans.works/oci/static:latest@sha256:5e858517feb24e8b721c7d0ab6d48776ce42140d66ec6ce35618d31cad5a25ff AS production
+FROM onlyhavecans.works/oci/static:latest@sha256:ccb3134e44d06066d1ba7b65b6d99a8f75c7fb7a9814f91945a1ecbf6338f4cc AS production
 EXPOSE 3200/tcp
 
 COPY --from=build /go/bin/silicon-dawn /
